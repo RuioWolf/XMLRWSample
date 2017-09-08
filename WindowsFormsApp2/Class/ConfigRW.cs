@@ -83,18 +83,32 @@ namespace WindowsFormsApp2
 				FirstInit();
 			}
 			XmlNode servername = xmlDocument.DocumentElement;
-//			XmlNodeList serverlist = servername.ChildNodes;
-			foreach (XmlNode node in servername.ChildNodes)
+			//			XmlNodeList serverlist = servername.ChildNodes;
+			if (servername != null)
 			{
-				list.Add(node.Name);
+				foreach (XmlNode node in servername.ChildNodes)
+				{
+					list.Add(node.Name);
+				}
+				return list;
 			}
-			return list;
+			else
+			{
+				return null;
+			}
 		}
 
 		public static string Query(string server, string item)
 		{
-			XmlNode node = xmlDocument.SelectSingleNode("Server/" + server+"/"+item);
-			return node.InnerText;
+			XmlNode node = xmlDocument.SelectSingleNode("Server/" + server + "/" + item);
+			if (node != null)
+			{
+				return node.InnerText;
+			}
+			else
+			{
+				return null;
+			}
 		}
 
 		public static void ErrorHandler(string arg)
