@@ -7,22 +7,19 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using static WindowsFormsApp2.ConfigRw;
+using System.Xml;
 
 namespace WindowsFormsApp2
 {
 	public partial class Form1 : Form
 	{
 		//Init
-		string cfg = Environment.CurrentDirectory + "\\config.xml";
-
-		bool isxmlok;
-
-		ConfigRw c=new ConfigRw();
-
+		private static string servername;
+		
 		public Form1()
 		{
 			ConfigRw.Init();
+
 			InitializeComponent();
 		}
 
@@ -33,7 +30,7 @@ namespace WindowsFormsApp2
 
 		private void button2_Click(object sender, EventArgs e)
 		{
-			if (CheckXml())
+			if (ConfigRw.CheckXml())
 			{
 				MessageBox.Show("Verify Success");
 			}
@@ -43,9 +40,25 @@ namespace WindowsFormsApp2
 			}
 		}
 
-		//        public static void main(String[] args)
-		//        {
-		//            
-		//        }
+		private void button3_Click(object sender, EventArgs e)
+		{
+			foreach (string listbox in ConfigRw.QueryList())
+			{
+			listBox1.DataSource = ConfigRw.QueryList();
+			}
+		}
+
+		private void listBox1_SelectedValueChanged(object sender, EventArgs e)
+		{
+			servername = listBox1.SelectedItem.ToString();
+			textBox1.Text = servername;
+			textBox2.Text = ConfigRw.Query(servername, "IP");
+			textBox3.Text = ConfigRw.Query(servername, "Port");
+		}
+
+		private void button4_Click(object sender, EventArgs e)
+		{
+
+		}
 	}
 }
