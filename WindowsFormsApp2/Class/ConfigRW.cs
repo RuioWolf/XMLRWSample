@@ -17,6 +17,11 @@ namespace WindowsFormsApp2
 		public static void Init()
 		{
 			configxml = Environment.CurrentDirectory + "\\config.xml";
+			LoadConfig();
+		}
+
+		public static void LoadConfig()
+		{
 			try
 			{
 				xmlDocument.Load(configxml);
@@ -30,8 +35,8 @@ namespace WindowsFormsApp2
 		public static void FirstInit()
 		{
 			XElement xElement = new XElement(
-				new XElement("Server",
-					new XElement("ServerName",
+				new XElement("ServerConfig",
+					new XElement("Server", new XAttribute("name", "Server1"),
 						new XElement("IP", "1.2.3.4"),
 						new XElement("Port", "27015")
 					)
@@ -60,7 +65,7 @@ namespace WindowsFormsApp2
 //				return false;
 //			}
 			//XmlNodeList nodeList = xmlDocument.GetElementsByTagName("IP");
-			XmlNodeList nodeList = xmlDocument.SelectNodes("Server/*");
+			XmlNodeList nodeList = xmlDocument.SelectNodes("ServerConfig/*");
 			if (nodeList.Count > 0)
 			{
 				return true;
@@ -73,22 +78,15 @@ namespace WindowsFormsApp2
 			List<string> list = new List<string>();
 			StringBuilder stringBuilder = new StringBuilder();
 
-			try
-			{
-				xmlDocument.Load(configxml);
-			}
-			catch (Exception e)
-			{
-				ErrorHandler(e.Message);
-				FirstInit();
-			}
 			XmlNode servername = xmlDocument.DocumentElement;
-			//			XmlNodeList serverlist = servername.ChildNodes;
 			if (servername != null)
 			{
-				foreach (XmlNode node in servername.ChildNodes)
+				foreach (XmlNode node in servername)
 				{
-					list.Add(node.Name);
+					foreach (XmlAttribute xa in node.Attributes)
+					{
+						list.Add(xa.Value);
+					}
 				}
 				return list;
 			}
@@ -98,16 +96,87 @@ namespace WindowsFormsApp2
 			}
 		}
 
-		public static string Query(string server, string item)
+		public static string QuerySingleItem(string qservername, string item)
 		{
-			XmlNode node = xmlDocument.SelectSingleNode("Server/" + server + "/" + item);
-			if (node != null)
+			//			XmlNode node = xmlDocument.SelectSingleNode("ServerConfig/" + servername + "/" + item);
+			//			if (node != null)
+			//			{
+			//				return node.InnerText;
+			//			}
+			//			else
+			//			{
+			//				return null;
+			//			}
+			XmlNode servername = xmlDocument.DocumentElement;
+			if (servername != null)
 			{
-				return node.InnerText;
+				string result = string.Empty;
+				foreach (XmlNode node in servername)
+				{
+					foreach (XmlAttribute xa in node.Attributes)
+					{
+//						list.Add(xa.Value);
+						if (xa.Value == qservername)
+						{
+							foreach (XmlNode res in node.ChildNodes)
+							{
+								if (res.Name == item)
+								{
+									result = res.InnerText;
+								}
+							}
+						}
+					}
+				}
+				return result;
 			}
 			else
 			{
 				return null;
+			}
+		}
+
+		public static List<string> Query(string qservername)
+		{
+			List<string> list = new List<string>();
+			XmlNodeList lnode = xmlDocument.SelectNodes("ServerConfig/*");
+
+			if (lnode != null)
+			{
+				foreach (XmlElement sname in lnode)
+				{
+					if (sname.GetAttribute("name") == qservername)
+					{
+						foreach (XmlNode item in sname.ChildNodes)
+						{
+							list.Add(item.InnerText);
+						}
+					}
+				}
+				return list;
+			}
+			else
+			{
+				return null;
+			}
+		}
+
+		public static void EditValve(string servername, string item, string valve)
+		{
+			XmlNode node = xmlDocument.SelectSingleNode("Server/" + servername + "/" + item);
+			node.InnerText = valve;
+			xmlDocument.Save(configxml);
+		}
+
+		public static void EditName(string oldname, string newname)
+		{
+			XmlNode node = xmlDocument.DocumentElement;
+			foreach (XmlNode oldNode in node.ChildNodes)
+			{
+				if (oldNode.Name == oldname)
+				{
+					XmlNode n = oldNode;
+				}
 			}
 		}
 
